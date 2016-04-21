@@ -2,9 +2,11 @@ from flask import Flask, request, render_template
 from flask.ext.sqlalchemy import SQLAlchemy
 from flask_script import Manager
 from flask_migrate import Migrate, MigrateCommand
+from api import api
 
 app = Flask(__name__)
 app.config.from_object('config')
+app.register_blueprint(api)
 
 db = SQLAlchemy(app)
 migrate = Migrate(app, db)
