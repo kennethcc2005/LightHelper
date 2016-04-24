@@ -8,7 +8,7 @@ from api.users.users import users
 app = Flask(__name__)
 app.config.from_object('config')
 app.secret_key = app.config.get('LOGIN_SECRET_KEY')
-app.register_blueprint(users_obj)
+app.register_blueprint(users)
 
 db = SQLAlchemy(app)
 migrate = Migrate(app, db)

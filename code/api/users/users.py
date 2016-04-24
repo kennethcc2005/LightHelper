@@ -1,13 +1,12 @@
-from flask import Blueprint
+import json
+from . import users
+from sqlalchemy.exc import OperationalError
+from flask import Blueprint, Response, g, request, jsonify
 from ..controllers.util import create_user
-
-users = Blueprint('users', __name__, url_prefix='api/users')
 
 @users.route('/register', methods=['POST'])
 def register():
-    print request.methods
-    data = json.loads(request.get_data())
-    data['email'] = data['email'].lower()
+    data = request.get_data()
     user = create_user(data['email'], data.get('username'), data.get('first_name'), data.get('last_name'),
                 data.get('password'))
     return user
