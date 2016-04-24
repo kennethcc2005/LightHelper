@@ -11,6 +11,7 @@ app.secret_key = app.config.get('LOGIN_SECRET_KEY')
 app.register_blueprint(users)
 
 db = SQLAlchemy(app)
+db.init_app(app)
 migrate = Migrate(app, db)
 
 manager = Manager(app)

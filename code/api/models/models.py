@@ -21,13 +21,32 @@ class User(db.Model):
 
     def __init__(self, **user_data):
         self.id = uuid.uuid4().hex
-        self.email = user_data["email"].lower()
-        self.username = user_data["username"].lower()
+        self.email = user_data["email"]
+        self.username = user_data["username"]
         self.password = user_data["password"]
         self.first_name = user_data["first_name"]
         self.last_name = user_data["last_name"]
         self.role = 'volunteer'
         self.updated_ts = datetime.datetime.now()
+        
+    def __repr__(self):
+        return '<User %r>' % self.email
+
+    def is_authenticated(self):
+        return True
+
+    def is_active(self):
+        return self.active
+
+    def is_anonymous(self):
+        return False
+
+    def get_id(self):
+        return unicode(self.id)
+
+    def __unicode__(self):
+        return self.email
+
 
 if __name__ == '__main__':
     manager.run()
