@@ -4,6 +4,9 @@ from flask_script import Manager
 from flask_migrate import Migrate, MigrateCommand
 import flask.ext.login as flask_login
 from api.users.users import users
+import os
+
+basedir = os.path.abspath(os.path.dirname(__file__))
 
 app = Flask(__name__)
 app.config.from_object('config')

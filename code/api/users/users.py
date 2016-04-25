@@ -11,7 +11,8 @@ def register():
     data = ast.literal_eval(data)
     user = create_user(data['email'], data['username'], data['first_name'], data['last_name'],
                 data['password'])
-    return user
+    print user
+    return 'success'
 
 @users.route('/test', methods=['GET'])
 def test():
