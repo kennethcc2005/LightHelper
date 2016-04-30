@@ -1,12 +1,12 @@
 import datetime
 import uuid
-from app import db, manager
 from sqlalchemy.sql.expression import text, false
 from sqlalchemy.types import TIMESTAMP, Numeric
+from app import db, manager
 
 class User(db.Model):
     __tablename__ = 'givelight_user'
-    
+
     id = db.Column(db.String(1024), primary_key=True)
     email = db.Column(db.String(255), nullable=False, unique=True)
     username = db.Column(db.String(128), nullable=False, unique=True)
