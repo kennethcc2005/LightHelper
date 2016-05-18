@@ -14,6 +14,8 @@ class User(db.Model):
     last_name = db.Column(db.String(64), nullable=False)
     role = db.Column(db.String(64), nullable=False)
     password = db.Column(db.String(1024), nullable=False)
+    phone = db.Column(db.String(15), nullable=True)
+    userattribute = db.relationship('UserAttribute', uselist=False)
     created_ts = db.Column(
         TIMESTAMP, server_default=text('CURRENT_TIMESTAMP'), nullable=False)
     updated_update = db.Column(
@@ -47,6 +49,27 @@ class User(db.Model):
     def __unicode__(self):
         return self.email
 
+class UserAttribute(db.Model):
+    __tablename__ = 'givelight_user_attribute'
+
+    id = db.Column(db.String(1024), primary_key=True)
+    user_id = db.Column(
+        db.String(1024), db.ForeignKey('givelight_user.id'), nullable=False, unique=True)
+    address_line1 = db.Column(db.String(64), nullable=True)
+    address_line2 = db.Column(db.String(64), nullable=True)
+    city = db.Column(db.String(30), nullable=True)
+    state = db.Column(db.String(30), nullable=True)
+    zip_code = db.Column(db.String(10), nullable=True)
+    country = db.Column(db.String(40), nullable=True)
+    created_ts = db.Column(
+         TIMESTAMP, server_default=text('CURRENT_TIMESTAMP'), nullable=False)
+    updated_ts = db.Column(
+         TIMESTAMP, default=db.func.now(), onupdate=db.func.now(), nullable=False)
+
+
+    def __init__(self, user):
+        self.id = uuid.uuid4().hex
+        self.user_id = user
 
 if __name__ == '__main__':
     manager.run()
