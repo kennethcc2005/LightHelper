@@ -1,9 +1,8 @@
+from app import db, manager
 import datetime
 import uuid
 from sqlalchemy.sql.expression import text, false
 from sqlalchemy.types import TIMESTAMP, Numeric
-from flask import app
-from ..db import db
 
 class User(db.Model):
     __tablename__ = 'givelight_user'
@@ -14,6 +13,9 @@ class User(db.Model):
     first_name = db.Column(db.String(64), nullable=False)
     last_name = db.Column(db.String(64), nullable=False)
     role = db.Column(db.String(64), nullable=False)
+    city = db.Column(db.String(64), nullable=False)
+    state = db.Column(db.String(64), nullable=False)
+    country = db.Column(db.String(64), nullable=False)
     password = db.Column(db.String(1024), nullable=False)
     created_ts = db.Column(
         TIMESTAMP, server_default=text('CURRENT_TIMESTAMP'), nullable=False)
