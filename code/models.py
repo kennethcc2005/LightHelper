@@ -20,6 +20,7 @@ class User(db.Model):
     password = db.Column(db.String(1024), nullable=False)
     phone = db.Column(db.String(15), nullable=True)
     userattribute = db.relationship('UserAttribute', uselist=False)
+    skill = db.relationship('Skill', uselist=False)
     created_ts = db.Column(
         TIMESTAMP, server_default=text('CURRENT_TIMESTAMP'), nullable=False)
     updated_update = db.Column(
@@ -76,8 +77,8 @@ class UserAttribute(db.Model):
         self.user_id = user
 
 event_task_table = Table('givelight_event_task', db.metadata,
-    db.Column('givelight_event_id', db.String(1024), ForeignKey('givelight_event.id')),
-    db.Column('givelight_task_id', db.String(1024), ForeignKey('givelight_task.id'))
+    db.Column('givelight_event_id', db.String(1024), db.ForeignKey('givelight_event.id')),
+    db.Column('givelight_task_id', db.String(1024), db.ForeignKey('givelight_task.id'))
 )
 
 class Event(db.Model):
@@ -87,7 +88,7 @@ class Event(db.Model):
     event_name = db.Column(db.String(1024), nullable=False)
     event_time = db.Column(db.DateTime(timezone=False), nullable=True)
     location = db.Column(db.String(1024), nullable=False)
-    task = relationship("Task",
+    task = db.relationship("Task",
                     secondary=event_task_table,
                     backref="Event")
     created_ts = db.Column(
@@ -105,7 +106,7 @@ class Task(db.Model):
     description = db.Column(db.String(1024), nullable=True)
     deadline = db.Column(db.DateTime(timezone=False), nullable=True)
     completed = db.Column(db.Boolean(), default=True, nullable=True)
-    frequency = db.Column(ENUM('per_event', 'monthly', 'quarterly', 'annually', name='frequency'), server_default='per_event', nullable=True)
+    frequency = db.Column(ENUM('per_event', 'monthly', 'quarterly', 'annually', 'none', name='frequency'), server_default='none', nullable=True)
     progress_percentage = db.Column(db.Integer, server_default='0', nullable=False)
     urgency_level=db.Column(ENUM('1','2','3','4','5', name='urgency_level'), server_default='1', nullable=False)
     created_ts = db.Column(
@@ -113,9 +114,21 @@ class Task(db.Model):
     updated_ts = db.Column(
          TIMESTAMP, default=db.func.now(), onupdate=db.func.now(), nullable=False)
 
+    def __init__(self):
+        self.id = uuid.uuid4().hex
+
+class Skill(db.Model):
+    __tablename__ = 'givelight_skill'
+
+    id = db.Column(db.String(1024), primary_key=True)
+    name = db.Column(db.String(1024), nullable=False)
+    user_id = db.Column(
+        db.String(1024), db.ForeignKey('givelight_user.id'), nullable=False)
 
     def __init__(self):
         self.id = uuid.uuid4().hex
+
+
 
 if __name__ == '__main__':
     manager.run()
