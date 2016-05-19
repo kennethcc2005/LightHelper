@@ -20,7 +20,8 @@ class User(db.Model):
     password = db.Column(db.String(1024), nullable=False)
     phone = db.Column(db.String(15), nullable=True)
     userattribute = db.relationship('UserAttribute', uselist=False)
-    skill = db.relationship('Skill', uselist=False)
+    skill = db.relationship('Skill', uselist=True)
+    department = db.relationship('Department', uselist=True)
     created_ts = db.Column(
         TIMESTAMP, server_default=text('CURRENT_TIMESTAMP'), nullable=False)
     updated_update = db.Column(
@@ -91,6 +92,7 @@ class Event(db.Model):
     task = db.relationship("Task",
                     secondary=event_task_table,
                     backref="Event")
+    department = db.relationship("Department", uselist=True)
     created_ts = db.Column(
          TIMESTAMP, server_default=text('CURRENT_TIMESTAMP'), nullable=False)
     updated_ts = db.Column(
@@ -128,7 +130,19 @@ class Skill(db.Model):
     def __init__(self):
         self.id = uuid.uuid4().hex
 
+class Department(db.Model):
+    __tablename__ = 'givelight_department'
 
+    id = db.Column(db.String(1024), primary_key=True)
+    name = db.Column(db.String(1024), nullable=False, unique=True)
+    functions = db.Column(db.Text, nullable=True)
+    user_id = db.Column(
+        db.String(1024), db.ForeignKey('givelight_user.id'), nullable=False)
+    event_id = db.Column(
+        db.String(1024), db.ForeignKey('givelight_event.id'), nullable=False)
+
+    def __init__(self):
+        self.id = uuid.uuid4().hex
 
 if __name__ == '__main__':
     manager.run()
