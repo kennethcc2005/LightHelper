@@ -8,6 +8,16 @@ import sqlalchemy.ext.mutable
 from sqlalchemy import Table, Column, Integer, ForeignKey
 from app import db, manager
 
+event_task_table = db.Table('givelight_event_task', db.metadata,
+    db.Column('givelight_event_id', db.String(1024), db.ForeignKey('givelight_event.id')),
+    db.Column('givelight_task_id', db.String(1024), db.ForeignKey('givelight_task.id'))
+)
+
+attendant_table = db.Table('givelight_attendant', db.metadata,
+    db.Column('givelight_event_id', db.String(1024), db.ForeignKey('givelight_event.id')),
+    db.Column('givelight_user_id', db.String(1024), db.ForeignKey('givelight_user.id'))
+)
+
 class User(db.Model):
     __tablename__ = 'givelight_user'
 
@@ -19,9 +29,12 @@ class User(db.Model):
     role = db.Column(db.String(64), nullable=False)
     password = db.Column(db.String(1024), nullable=False)
     phone = db.Column(db.String(15), nullable=True)
+    department_name = db.Column(db.String(1024), nullable=True)
     userattribute = db.relationship('UserAttribute', uselist=False)
     skill = db.relationship('Skill', uselist=True)
-    department = db.relationship('Department', uselist=True)
+    event = db.relationship("Event",
+                    secondary=attendant_table,
+                    backref="User")
     created_ts = db.Column(
         TIMESTAMP, server_default=text('CURRENT_TIMESTAMP'), nullable=False)
     updated_update = db.Column(
@@ -76,11 +89,6 @@ class UserAttribute(db.Model):
     def __init__(self, user):
         self.id = uuid.uuid4().hex
         self.user_id = user
-
-event_task_table = Table('givelight_event_task', db.metadata,
-    db.Column('givelight_event_id', db.String(1024), db.ForeignKey('givelight_event.id')),
-    db.Column('givelight_task_id', db.String(1024), db.ForeignKey('givelight_task.id'))
-)
 
 class Event(db.Model):
     __tablename__ = 'givelight_event'
@@ -138,8 +146,6 @@ class Department(db.Model):
     functions = db.Column(db.Text, nullable=True)
     user_id = db.Column(
         db.String(1024), db.ForeignKey('givelight_user.id'), nullable=False)
-    event_id = db.Column(
-        db.String(1024), db.ForeignKey('givelight_event.id'), nullable=False)
 
     def __init__(self):
         self.id = uuid.uuid4().hex
