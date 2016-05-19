@@ -1,13 +1,13 @@
 """empty message
 
-Revision ID: b89a5a60fbf2
+Revision ID: 7ebbed47c591
 Revises: 330b980694fb
-Create Date: 2016-05-18 19:26:50.376244
+Create Date: 2016-05-18 23:18:36.522184
 
 """
 
 # revision identifiers, used by Alembic.
-revision = 'b89a5a60fbf2'
+revision = '7ebbed47c591'
 down_revision = '330b980694fb'
 
 from alembic import op
@@ -27,15 +27,21 @@ def upgrade():
     )
     op.create_table('givelight_task',
     sa.Column('id', sa.String(length=1024), nullable=False),
-    sa.Column('description', sa.String(length=1024), nullable=False),
+    sa.Column('description', sa.String(length=1024), nullable=True),
     sa.Column('deadline', sa.DateTime(), nullable=True),
     sa.Column('completed', sa.Boolean(), nullable=True),
-    sa.Column('frequency', postgresql.ENUM('per_event', 'monthly', 'quarterly', 'annually'), server_default='per_event', nullable=True),
+    sa.Column('frequency', postgresql.ENUM('per_event', 'monthly', 'quarterly', 'annually', name='frequency'), server_default='per_event', nullable=True),
     sa.Column('progress_percentage', sa.Integer(), server_default='0', nullable=False),
-    sa.Column('urgency_level', postgresql.ENUM('1', '2', '3', '4', '5'), server_default='1', nullable=False),
+    sa.Column('urgency_level', postgresql.ENUM('1', '2', '3', '4', '5', name='urgency_level'), server_default='1', nullable=False),
     sa.Column('created_ts', sa.TIMESTAMP(), server_default=sa.text(u'CURRENT_TIMESTAMP'), nullable=False),
     sa.Column('updated_ts', sa.TIMESTAMP(), nullable=False),
     sa.PrimaryKeyConstraint('id')
+    )
+    op.create_table('givelight_event_task',
+    sa.Column('givelight_event_id', sa.String(length=1024), nullable=True),
+    sa.Column('givelight_task_id', sa.String(length=1024), nullable=True),
+    sa.ForeignKeyConstraint(['givelight_event_id'], ['givelight_event.id'], ),
+    sa.ForeignKeyConstraint(['givelight_task_id'], ['givelight_task.id'], )
     )
     op.create_table('givelight_user_attribute',
     sa.Column('id', sa.String(length=1024), nullable=False),
@@ -66,6 +72,7 @@ def downgrade():
     op.add_column(u'givelight_user', sa.Column('city', sa.VARCHAR(length=64), autoincrement=False, nullable=False))
     op.drop_column(u'givelight_user', 'phone')
     op.drop_table('givelight_user_attribute')
+    op.drop_table('givelight_event_task')
     op.drop_table('givelight_task')
     op.drop_table('givelight_event')
     ### end Alembic commands ###

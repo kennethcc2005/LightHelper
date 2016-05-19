@@ -3,7 +3,9 @@ import uuid
 from sqlalchemy.sql.expression import text, false
 from sqlalchemy.types import TIMESTAMP, Numeric
 from sqlalchemy.dialects.postgresql import ENUM
+from sqlalchemy.orm import backref, relationship
 import sqlalchemy.ext.mutable
+from sqlalchemy import Table, Column, Integer, ForeignKey
 from app import db, manager
 
 class User(db.Model):
@@ -73,6 +75,11 @@ class UserAttribute(db.Model):
         self.id = uuid.uuid4().hex
         self.user_id = user
 
+event_task_table = Table('givelight_event_task', db.metadata,
+    db.Column('givelight_event_id', db.String(1024), ForeignKey('givelight_event.id')),
+    db.Column('givelight_task_id', db.String(1024), ForeignKey('givelight_task.id'))
+)
+
 class Event(db.Model):
     __tablename__ = 'givelight_event'
 
@@ -80,7 +87,9 @@ class Event(db.Model):
     event_name = db.Column(db.String(1024), nullable=False)
     event_time = db.Column(db.DateTime(timezone=False), nullable=True)
     location = db.Column(db.String(1024), nullable=False)
-    # task = db.relationship('Task')
+    task = relationship("Task",
+                    secondary=event_task_table,
+                    backref="Event")
     created_ts = db.Column(
          TIMESTAMP, server_default=text('CURRENT_TIMESTAMP'), nullable=False)
     updated_ts = db.Column(
@@ -93,14 +102,12 @@ class Task(db.Model):
     __tablename__ = 'givelight_task'
 
     id = db.Column(db.String(1024), primary_key=True)
-    description = db.Column(db.String(1024), nullable=False)
+    description = db.Column(db.String(1024), nullable=True)
     deadline = db.Column(db.DateTime(timezone=False), nullable=True)
     completed = db.Column(db.Boolean(), default=True, nullable=True)
-    frequency = db.Column(ENUM('per_event', 'monthly', 'quarterly', 'annually'), server_default='per_event', nullable=True)
+    frequency = db.Column(ENUM('per_event', 'monthly', 'quarterly', 'annually', name='frequency'), server_default='per_event', nullable=True)
     progress_percentage = db.Column(db.Integer, server_default='0', nullable=False)
-    urgency_level=db.Column(ENUM('1','2','3','4','5'), server_default='1', nullable=False)
-    # event_id = db.Column(
-        # db.String(1024), db.ForeignKey('givelight_event.id'), nullable=False)
+    urgency_level=db.Column(ENUM('1','2','3','4','5', name='urgency_level'), server_default='1', nullable=False)
     created_ts = db.Column(
          TIMESTAMP, server_default=text('CURRENT_TIMESTAMP'), nullable=False)
     updated_ts = db.Column(
@@ -109,7 +116,6 @@ class Task(db.Model):
 
     def __init__(self):
         self.id = uuid.uuid4().hex
-
 
 if __name__ == '__main__':
     manager.run()
